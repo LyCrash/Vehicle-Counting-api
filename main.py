@@ -9,11 +9,11 @@ from io import BytesIO
 from PIL import Image
 from base64 import b64encode
 from PIL import Image, UnidentifiedImageError
-
+import paho.mqtt.client as mqtt
 from ikomia.dataprocess.workflow import Workflow
 from ikomia.utils.displayIO import display
 import os
-
+import paho.mqtt.client as mqtt
 app = FastAPI()
 
 # Initialize counts for each category
@@ -106,7 +106,7 @@ def process_video(wf, tracking, threshold, drop):
 def get_image():
     while True:
         try:
-            with open("image.jpg", "rb") as f:
+            with open("input.jpg", "rb") as f:
                 image_bytes = f.read()
             image = Image.open(BytesIO(image_bytes))
             img_io = BytesIO()
@@ -149,6 +149,10 @@ async def upload(imageFile: UploadFile = File(...)):
         global car_count, truck_count, bus_count, detected_obj_ids
         print("cars: ", car_count, "trucks: ",truck_count, "buses: ", bus_count)
         print("success")
+        #publish to mqtt
+        mqttc.publish("ESI/ICS/CARS",car_count)
+        mqttc.publish("ESI/ICS/TRUCKS",truck_count)
+        mqttc.publish("ESI/ICS/BUSES",bus_count)
         return JSONResponse(content={"message": "Image Received"}, status_code=201)
     except Exception as e:
         return HTTPException(detail=str(e), status_code=500)
@@ -168,6 +172,10 @@ def get_data():
 
 
 if __name__ == "__main__":
+
+    #mqtt connection establishment
+    mqttc = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+    mqttc.connect("test.mosquitto.org", 1883, 60)
     import uvicorn
 
     # ____________________ Model Initialisation
@@ -192,3 +200,4 @@ if __name__ == "__main__":
     drop = threshold//3
 
     uvicorn.run(app, host="0.0.0.0", port=8000)
+    mqttc.loop_forever(retry_first_connection=False)
