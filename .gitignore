@@ -1,0 +1,21 @@
+# YOLOv3-320 weights (big file)
+/yolov3.weights
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# PyCharm project settings
+.idea/
+*.iml
+
+# Jupyter Notebook settings
+.ipynb_checkpoints/
+
+# Visual Studio Code settings
+.vscode/
