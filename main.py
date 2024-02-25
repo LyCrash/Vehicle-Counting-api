@@ -154,6 +154,19 @@ async def upload(imageFile: UploadFile = File(...)):
         return HTTPException(detail=str(e), status_code=500)
 
 
+def generate_data():
+    return{
+        "cars":car_count,
+        "trucks":truck_count,
+        "buses":bus_count
+    }
+@app.get('/data')
+def get_data():
+    data=generate_data()
+    return JSONResponse(content=data,status_code=200)
+
+
+
 if __name__ == "__main__":
     import uvicorn
 
